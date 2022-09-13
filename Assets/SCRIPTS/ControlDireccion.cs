@@ -25,10 +25,10 @@ public class ControlDireccion : MonoBehaviour
 		{
             case TipoInput.AWSD:
                 if (Habilitado) {
-                    if (Input.GetKey(KeyCode.A)) {
+                    if (Input.GetKey(KeyCode.J)) {
 						Giro = -1;
                     }
-                    else if (Input.GetKey(KeyCode.D)) {
+                    else if (Input.GetKey(KeyCode.L)) {
 						Giro = 1;
                     }
                     else {
