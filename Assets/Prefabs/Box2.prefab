@@ -126,6 +126,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ReduccionVel: 0
-  TiempEmpDesapa: 3
-  TiempDesapareciendo: 2
+  TiempEmpDesapa: 0
+  TiempDesapareciendo: 0
   PlayerTag: Player
