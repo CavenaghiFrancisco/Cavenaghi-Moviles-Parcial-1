@@ -23,6 +23,9 @@ public class GameManager : MonoBehaviour {
 
     public float TiempEspMuestraPts = 3;
 
+    [SerializeField] private Joystick j1;
+    [SerializeField] private Joystick j2;
+
     //posiciones de los camiones dependientes del lado que les toco en la pantalla
     //la pos 0 es para la izquierda y la 1 para la derecha
     public Vector3[] PosCamionesCarrera = new Vector3[2];
@@ -49,17 +52,20 @@ public class GameManager : MonoBehaviour {
     }
 
     void Update() {
-        //REINICIAR
-        if (Input.GetKey(KeyCode.Alpha0)) {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        }
-
-        //CIERRA LA APLICACION
-        if (Input.GetKeyDown(KeyCode.Escape)) {
-            Application.Quit();
-        }
-
         switch (EstAct) {
+#if !UNITY_ANDROID
+        case EstadoJuego.Calibrando:
+
+                if (j1.Vertical > 0.85f) {
+                    Player1.Seleccionado = true;
+                }
+
+                if (j2.Vertical > 0.85f) {
+                    Player2.Seleccionado = true;
+                }
+                break;
+#endif
+#if UNITY_ANDROID
             case EstadoJuego.Calibrando:
 
                 if (Input.GetKeyDown(KeyCode.W)) {
@@ -71,14 +77,9 @@ public class GameManager : MonoBehaviour {
                 }
 
                 break;
-
+#endif
 
             case EstadoJuego.Jugando:
-
-                //SKIP LA CARRERA
-                if (Input.GetKey(KeyCode.Alpha9)) {
-                    TiempoDeJuego = 0;
-                }
 
                 if (TiempoDeJuego <= 0) {
                     FinalizarCarrera();
