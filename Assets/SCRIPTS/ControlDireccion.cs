@@ -67,38 +67,13 @@ public class ControlDireccion : MonoBehaviour
 		switch(InputAct)
 		{
 			case TipoInput.AWSD:
-				if (j1.Horizontal > 0)
-				{
-					Giro = 1;
-				}
-				else if (j1.Horizontal < 0)
-				{
-					Giro = -1;
-				}
-				else
-				{
-					Giro = 0;
-				}
+				Giro = j1.Horizontal;
 				break;
 			case TipoInput.Arrows:
-				if (j2.Horizontal > 0)
-				{
-					Giro = 1;
-				}
-				else if (j2.Horizontal < 0)
-				{
-					Giro = -1;
-				}
-				else
-				{
-					Giro = 0;
-				}
+				Giro = j2.Horizontal;
 				break;
 		}
 	#endif
-
-
-		Debug.Log(j1.Horizontal);
 
 		carController.SetGiro(Giro);
 	}

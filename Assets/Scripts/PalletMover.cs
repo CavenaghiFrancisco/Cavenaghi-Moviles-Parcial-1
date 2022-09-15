@@ -17,7 +17,7 @@ public class PalletMover : ManejoPallets {
     bool segundoCompleto = false;
 
     private void Update() {
-    #if UNITY_ANDROID
+    #if !UNITY_ANDROID
         switch (miInput) {
             case MoveType.WASD:
                 if (!Tenencia() && Desde.Tenencia() && Input.GetKeyDown(KeyCode.A)) {
@@ -45,7 +45,7 @@ public class PalletMover : ManejoPallets {
                 break;
         }
 #endif
-#if !UNITY_ANDROID
+#if UNITY_ANDROID
     switch (miInput) {
             case MoveType.WASD:
                 if (!Tenencia() && Desde.Tenencia() && j1.Horizontal < -0.85f) {

@@ -53,7 +53,7 @@ public class GameManager : MonoBehaviour {
 
     void Update() {
         switch (EstAct) {
-#if !UNITY_ANDROID
+#if UNITY_ANDROID
         case EstadoJuego.Calibrando:
 
                 if (j1.Vertical > 0.85f) {
@@ -65,7 +65,7 @@ public class GameManager : MonoBehaviour {
                 }
                 break;
 #endif
-#if UNITY_ANDROID
+#if !UNITY_ANDROID
             case EstadoJuego.Calibrando:
 
                 if (Input.GetKeyDown(KeyCode.W)) {
