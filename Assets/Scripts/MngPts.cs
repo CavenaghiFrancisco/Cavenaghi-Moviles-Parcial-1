@@ -119,13 +119,13 @@ public class MngPts : MonoBehaviour
 		{
 		case DatosPartida.Lados.Der:
 			
-			GS_Ganador.box.normal.background = Ganadores[1];
+			//GS_Ganador.box.normal.background = Ganadores[1];
 			
 			break;
 			
 		case DatosPartida.Lados.Izq:
 			
-			GS_Ganador.box.normal.background = Ganadores[0];
+			//GS_Ganador.box.normal.background = Ganadores[0];
 			
 			break;
 		}
