@@ -6,7 +6,7 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour {
     public static GameManager Instancia;
-
+    bool multiplayer = false;
     public float TiempoDeJuego = 60;
 
     public enum EstadoJuego { Calibrando, Jugando, Finalizado }
@@ -48,6 +48,11 @@ public class GameManager : MonoBehaviour {
 
     IEnumerator Start() {
         yield return null;
+        #if !UNITY_ANDROID
+        j1.transform.parent.gameObject.SetActive(false);
+        if(multiplayer)
+            j2.transform.parent.gameObject.SetActive(false);
+        #endif
         IniciarTutorial();
     }
 
@@ -117,7 +122,14 @@ public class GameManager : MonoBehaviour {
 
                 TiempEspMuestraPts -= Time.deltaTime;
                 if (TiempEspMuestraPts <= 0)
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+                    if (multiplayer)
+                    {
+                        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+                    }                        
+                    else
+                    {
+                        SceneManager.LoadScene("SingleEndGame");
+                    }
 
                 break;
         }
@@ -130,7 +142,8 @@ public class GameManager : MonoBehaviour {
     public void IniciarTutorial() {
         for (int i = 0; i < ObjsCalibracion1.Length; i++) {
             ObjsCalibracion1[i].SetActive(true);
-            ObjsCalibracion2[i].SetActive(true);
+            if(multiplayer)
+                ObjsCalibracion2[i].SetActive(true);
         }
 
         for (int i = 0; i < ObjsCarrera.Length; i++) {
@@ -138,7 +151,8 @@ public class GameManager : MonoBehaviour {
         }
 
         Player1.CambiarATutorial();
-        Player2.CambiarATutorial();
+        if(multiplayer)
+            Player2.CambiarATutorial();
 
         TiempoDeJuegoText.transform.parent.gameObject.SetActive(false);
         ConteoInicio.gameObject.SetActive(false);
@@ -148,42 +162,53 @@ public class GameManager : MonoBehaviour {
         Player1.GetComponent<Frenado>().RestaurarVel();
         Player1.GetComponent<ControlDireccion>().Habilitado = true;
 
-        Player2.GetComponent<Frenado>().RestaurarVel();
-        Player2.GetComponent<ControlDireccion>().Habilitado = true;
+        if (multiplayer)
+        {
+            Player2.GetComponent<Frenado>().RestaurarVel();
+            Player2.GetComponent<ControlDireccion>().Habilitado = true;
+        }   
     }
 
     void FinalizarCarrera() {
         EstAct = GameManager.EstadoJuego.Finalizado;
 
         TiempoDeJuego = 0;
-        
-        if (Player1.Dinero > Player2.Dinero) {
-            //lado que gano
-            if (Player1.LadoActual == Visualizacion.Lado.Der)
-                DatosPartida.LadoGanadaor = DatosPartida.Lados.Der;
-            else
-                DatosPartida.LadoGanadaor = DatosPartida.Lados.Izq;
-            //puntajes
-            DatosPartida.PtsGanador = Player1.Dinero;
-            DatosPartida.PtsPerdedor = Player2.Dinero;
-        }
-        else {
-            //lado que gano
-            if (Player2.LadoActual == Visualizacion.Lado.Der)
-                DatosPartida.LadoGanadaor = DatosPartida.Lados.Der;
-            else
-                DatosPartida.LadoGanadaor = DatosPartida.Lados.Izq;
 
-            //puntajes
-            DatosPartida.PtsGanador = Player2.Dinero;
-            DatosPartida.PtsPerdedor = Player1.Dinero;
+        if (multiplayer)
+        {
+            if (Player1.Dinero > Player2.Dinero)
+            {
+                //lado que gano
+                if (Player1.LadoActual == Visualizacion.Lado.Der)
+                    DatosPartida.LadoGanadaor = DatosPartida.Lados.Der;
+                else
+                    DatosPartida.LadoGanadaor = DatosPartida.Lados.Izq;
+                //puntajes
+                DatosPartida.PtsGanador = Player1.Dinero;
+                DatosPartida.PtsPerdedor = Player2.Dinero;
+            }
+            else
+            {
+                //lado que gano
+                if (Player2.LadoActual == Visualizacion.Lado.Der)
+                    DatosPartida.LadoGanadaor = DatosPartida.Lados.Der;
+                else
+                    DatosPartida.LadoGanadaor = DatosPartida.Lados.Izq;
+
+                //puntajes
+                DatosPartida.PtsGanador = Player2.Dinero;
+                DatosPartida.PtsPerdedor = Player1.Dinero;
+            }
         }
+        
 
         Player1.GetComponent<Frenado>().Frenar();
-        Player2.GetComponent<Frenado>().Frenar();
+        if(multiplayer)
+            Player2.GetComponent<Frenado>().Frenar();
 
         Player1.ContrDesc.FinDelJuego();
-        Player2.ContrDesc.FinDelJuego();
+        if (multiplayer)
+            Player2.ContrDesc.FinDelJuego();
     }
 
     //se encarga de posicionar la camara derecha para el jugador que esta a la derecha y viseversa
@@ -224,40 +249,57 @@ public class GameManager : MonoBehaviour {
             ObjsCalibracion1[i].SetActive(false);
         }
 
-        Player2.FinCalibrado = true;
+        if (multiplayer)
+        {
+            Player2.FinCalibrado = true;
 
-        for (int i = 0; i < ObjsCalibracion2.Length; i++) {
-            ObjsCalibracion2[i].SetActive(false);
+            for (int i = 0; i < ObjsCalibracion2.Length; i++)
+            {
+                ObjsCalibracion2[i].SetActive(false);
+            }
+
         }
 
-
+        if (multiplayer)
+        {
+            if (Player1.LadoActual == Visualizacion.Lado.Izq)
+            {
+                Player1.gameObject.transform.position = PosCamionesCarrera[0];
+                Player2.gameObject.transform.position = PosCamionesCarrera[1];
+            }
+            else
+            {
+                Player1.gameObject.transform.position = PosCamionesCarrera[1];
+                Player2.gameObject.transform.position = PosCamionesCarrera[0];
+            }
+        }
         //posiciona los camiones dependiendo de que lado de la pantalla esten
-        if (Player1.LadoActual == Visualizacion.Lado.Izq) {
-            Player1.gameObject.transform.position = PosCamionesCarrera[0];
-            Player2.gameObject.transform.position = PosCamionesCarrera[1];
-        }
-        else {
-            Player1.gameObject.transform.position = PosCamionesCarrera[1];
-            Player2.gameObject.transform.position = PosCamionesCarrera[0];
-        }
+        
 
         Player1.transform.forward = Vector3.forward;
         Player1.GetComponent<Frenado>().Frenar();
         Player1.CambiarAConduccion();
 
-        Player2.transform.forward = Vector3.forward;
-        Player2.GetComponent<Frenado>().Frenar();
-        Player2.CambiarAConduccion();
+        if (multiplayer)
+        {
+            Player2.transform.forward = Vector3.forward;
+            Player2.GetComponent<Frenado>().Frenar();
+            Player2.CambiarAConduccion();
+        }
+        
 
         //los deja andando
         Player1.GetComponent<Frenado>().RestaurarVel();
-        Player2.GetComponent<Frenado>().RestaurarVel();
+        if (multiplayer)
+            Player2.GetComponent<Frenado>().RestaurarVel();
         //cancela la direccion
         Player1.GetComponent<ControlDireccion>().Habilitado = false;
-        Player2.GetComponent<ControlDireccion>().Habilitado = false;
+        if (multiplayer)
+            Player2.GetComponent<ControlDireccion>().Habilitado = false;
         //les de direccion
         Player1.transform.forward = Vector3.forward;
-        Player2.transform.forward = Vector3.forward;
+        if (multiplayer)
+            Player2.transform.forward = Vector3.forward;
 
         TiempoDeJuegoText.transform.parent.gameObject.SetActive(false);
         ConteoInicio.gameObject.SetActive(false);
@@ -272,8 +314,19 @@ public class GameManager : MonoBehaviour {
             Player2.FinTuto = true;
         }
 
-        if (Player1.FinTuto && Player2.FinTuto)
-            CambiarACarrera();
+        if (multiplayer)
+        {
+            if (Player1.FinTuto && Player2.FinTuto)
+                CambiarACarrera();
+        }
+        else
+        {
+            if (Player1.FinTuto)
+            {
+                CambiarACarrera();
+            }
+        }
+            
     }
 
 }
