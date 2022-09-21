@@ -2,21 +2,21 @@ using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
     public List<CinemachineVirtualCamera> vcams;
     public List<GameObject> panels;
+    public List<GameObject> objects;
 
-    private void Start()
-    {
-        
-    }
+    [SerializeField] DifficultyScriptableObject difficulty;
+    [SerializeField] MultiplayerScriptableObject multiplayer;
 
     private IEnumerator ActivatePanel(CinemachineVirtualCamera camera)
     {
         float time = 0;
-        while (time < 1)
+        while (time < 2)
         {
             time += Time.deltaTime;
             yield return null;
@@ -28,12 +28,29 @@ public class MenuManager : MonoBehaviour
                 panels[i].SetActive(true);
             }
         }
+        if(camera == vcams[0])
+        {
+            foreach (GameObject obj in objects)
+            {
+                obj.SetActive(false);
+            }
+        }
         yield return null;
     }
 
     public void ActivateCamera(CinemachineVirtualCamera camera)
     {
-        foreach(CinemachineVirtualCamera vcam in vcams)
+        for (int i = 0; i < vcams.Count; i++)
+        {
+            if (vcams[i] == camera)
+            {
+                if (i != 0)
+                {
+                    objects[i - 1].SetActive(true);
+                }
+            }
+        }
+        foreach (CinemachineVirtualCamera vcam in vcams)
         {
             vcam.gameObject.SetActive(false);
         }
@@ -41,7 +58,24 @@ public class MenuManager : MonoBehaviour
         {
             panel.SetActive(false);
         }
+
         camera.gameObject.SetActive(true);
         StartCoroutine(ActivatePanel(camera));
     }
+
+    public void ChangeScene(string scene)
+    {
+        SceneManager.LoadScene(scene);
+    }
+
+    public void ChangeDifficulty(int diff)
+    {
+        difficulty.currentDifficulty = (Difficulty)diff;
+    }
+
+    public void ChangeMultiplayer(bool multi)
+    {
+        multiplayer.isMultiplayer = multi;
+    }
+
 }

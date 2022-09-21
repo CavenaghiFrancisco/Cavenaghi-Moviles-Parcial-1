@@ -6,7 +6,6 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour {
     public static GameManager Instancia;
-    bool multiplayer = false;
     public float TiempoDeJuego = 60;
 
     public enum EstadoJuego { Calibrando, Jugando, Finalizado }
@@ -26,6 +25,10 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private Joystick j1;
     [SerializeField] private Joystick j2;
 
+    [SerializeField] private GameObject boxes;
+    [SerializeField] private GameObject taxis;
+
+
     //posiciones de los camiones dependientes del lado que les toco en la pantalla
     //la pos 0 es para la izquierda y la 1 para la derecha
     public Vector3[] PosCamionesCarrera = new Vector3[2];
@@ -39,6 +42,8 @@ public class GameManager : MonoBehaviour {
     public GameObject[] ObjsCalibracion2;
     //la pista de carreras
     public GameObject[] ObjsCarrera;
+    [SerializeField] DifficultyScriptableObject difficulty;
+    [SerializeField] MultiplayerScriptableObject multiplayer;
 
     //--------------------------------------------------------//
 
@@ -48,12 +53,26 @@ public class GameManager : MonoBehaviour {
 
     IEnumerator Start() {
         yield return null;
-        #if !UNITY_ANDROID
+#if !UNITY_ANDROID
         j1.transform.parent.gameObject.SetActive(false);
-        if(multiplayer)
+        if(multiplayer.isMultiplayer)
             j2.transform.parent.gameObject.SetActive(false);
-        #endif
+#endif
+        SetDifficulty();
         IniciarTutorial();
+    }
+
+    private void SetDifficulty()
+    {
+        if(difficulty.currentDifficulty == Difficulty.NORMAL)
+        {
+            boxes.SetActive(true);
+        }
+        else if (difficulty.currentDifficulty == Difficulty.HARD)
+        {
+            boxes.SetActive(true);
+            taxis.SetActive(true);
+        }
     }
 
     void Update() {
@@ -65,8 +84,12 @@ public class GameManager : MonoBehaviour {
                     Player1.Seleccionado = true;
                 }
 
-                if (j2.Vertical > 0.85f) {
-                    Player2.Seleccionado = true;
+                if (multiplayer.isMultiplayer)
+                {
+                    if (j2.Vertical > 0.85f)
+                    {
+                        Player2.Seleccionado = true;
+                    }
                 }
                 break;
 #endif
@@ -77,8 +100,11 @@ public class GameManager : MonoBehaviour {
                     Player1.Seleccionado = true;
                 }
 
+                if (multiplayer.isMultiplayer)
+                {
                 if (Input.GetKeyDown(KeyCode.UpArrow)) {
                     Player2.Seleccionado = true;
+                }
                 }
 
                 break;
@@ -122,7 +148,7 @@ public class GameManager : MonoBehaviour {
 
                 TiempEspMuestraPts -= Time.deltaTime;
                 if (TiempEspMuestraPts <= 0)
-                    if (multiplayer)
+                    if (multiplayer.isMultiplayer)
                     {
                         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
                     }                        
@@ -142,7 +168,7 @@ public class GameManager : MonoBehaviour {
     public void IniciarTutorial() {
         for (int i = 0; i < ObjsCalibracion1.Length; i++) {
             ObjsCalibracion1[i].SetActive(true);
-            if(multiplayer)
+            if(multiplayer.isMultiplayer)
                 ObjsCalibracion2[i].SetActive(true);
         }
 
@@ -151,7 +177,7 @@ public class GameManager : MonoBehaviour {
         }
 
         Player1.CambiarATutorial();
-        if(multiplayer)
+        if(multiplayer.isMultiplayer)
             Player2.CambiarATutorial();
 
         TiempoDeJuegoText.transform.parent.gameObject.SetActive(false);
@@ -162,7 +188,7 @@ public class GameManager : MonoBehaviour {
         Player1.GetComponent<Frenado>().RestaurarVel();
         Player1.GetComponent<ControlDireccion>().Habilitado = true;
 
-        if (multiplayer)
+        if (multiplayer.isMultiplayer)
         {
             Player2.GetComponent<Frenado>().RestaurarVel();
             Player2.GetComponent<ControlDireccion>().Habilitado = true;
@@ -174,7 +200,7 @@ public class GameManager : MonoBehaviour {
 
         TiempoDeJuego = 0;
 
-        if (multiplayer)
+        if (multiplayer.isMultiplayer)
         {
             if (Player1.Dinero > Player2.Dinero)
             {
@@ -203,11 +229,11 @@ public class GameManager : MonoBehaviour {
         
 
         Player1.GetComponent<Frenado>().Frenar();
-        if(multiplayer)
+        if(multiplayer.isMultiplayer)
             Player2.GetComponent<Frenado>().Frenar();
 
         Player1.ContrDesc.FinDelJuego();
-        if (multiplayer)
+        if (multiplayer.isMultiplayer)
             Player2.ContrDesc.FinDelJuego();
     }
 
@@ -249,7 +275,7 @@ public class GameManager : MonoBehaviour {
             ObjsCalibracion1[i].SetActive(false);
         }
 
-        if (multiplayer)
+        if (multiplayer.isMultiplayer)
         {
             Player2.FinCalibrado = true;
 
@@ -260,7 +286,7 @@ public class GameManager : MonoBehaviour {
 
         }
 
-        if (multiplayer)
+        if (multiplayer.isMultiplayer)
         {
             if (Player1.LadoActual == Visualizacion.Lado.Izq)
             {
@@ -280,7 +306,7 @@ public class GameManager : MonoBehaviour {
         Player1.GetComponent<Frenado>().Frenar();
         Player1.CambiarAConduccion();
 
-        if (multiplayer)
+        if (multiplayer.isMultiplayer)
         {
             Player2.transform.forward = Vector3.forward;
             Player2.GetComponent<Frenado>().Frenar();
@@ -290,15 +316,15 @@ public class GameManager : MonoBehaviour {
 
         //los deja andando
         Player1.GetComponent<Frenado>().RestaurarVel();
-        if (multiplayer)
+        if (multiplayer.isMultiplayer)
             Player2.GetComponent<Frenado>().RestaurarVel();
         //cancela la direccion
         Player1.GetComponent<ControlDireccion>().Habilitado = false;
-        if (multiplayer)
+        if (multiplayer.isMultiplayer)
             Player2.GetComponent<ControlDireccion>().Habilitado = false;
         //les de direccion
         Player1.transform.forward = Vector3.forward;
-        if (multiplayer)
+        if (multiplayer.isMultiplayer)
             Player2.transform.forward = Vector3.forward;
 
         TiempoDeJuegoText.transform.parent.gameObject.SetActive(false);
@@ -314,7 +340,7 @@ public class GameManager : MonoBehaviour {
             Player2.FinTuto = true;
         }
 
-        if (multiplayer)
+        if (multiplayer.isMultiplayer)
         {
             if (Player1.FinTuto && Player2.FinTuto)
                 CambiarACarrera();
