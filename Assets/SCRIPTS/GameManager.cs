@@ -6,13 +6,15 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour {
     public static GameManager Instancia;
-    public float TiempoDeJuego = 60;
+    public float TiempoDeJuego = 10;
 
     public enum EstadoJuego { Calibrando, Jugando, Finalizado }
     public EstadoJuego EstAct = EstadoJuego.Calibrando;
 
-    public Player Player1;
-    public Player Player2;
+    [SerializeField] private Player player1;
+    [SerializeField] private Player player2;
+
+   
 
     bool ConteoRedresivo = true;
     public Rect ConteoPosEsc;
@@ -35,7 +37,15 @@ public class GameManager : MonoBehaviour {
     //posiciones de los camiones para el tutorial
     public Vector3 PosCamion1Tuto = Vector3.zero;
     public Vector3 PosCamion2Tuto = Vector3.zero;
+    public Player Player1
+    {
+        get { return player1; }
+    }
 
+    public Player Player2
+    {
+        get { return player2; }
+    }
     //listas de GO que activa y desactiva por sub-escena
     //escena de tutorial
     public GameObject[] ObjsCalibracion1;
@@ -150,8 +160,8 @@ public class GameManager : MonoBehaviour {
                 if (TiempEspMuestraPts <= 0)
                     if (multiplayer.isMultiplayer)
                     {
-                        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-                    }                        
+                        SceneManager.LoadScene("MultiEndGame");
+                    }
                     else
                     {
                         SceneManager.LoadScene("SingleEndGame");
@@ -200,32 +210,7 @@ public class GameManager : MonoBehaviour {
 
         TiempoDeJuego = 0;
 
-        if (multiplayer.isMultiplayer)
-        {
-            if (Player1.Dinero > Player2.Dinero)
-            {
-                //lado que gano
-                if (Player1.LadoActual == Visualizacion.Lado.Der)
-                    DatosPartida.LadoGanadaor = DatosPartida.Lados.Der;
-                else
-                    DatosPartida.LadoGanadaor = DatosPartida.Lados.Izq;
-                //puntajes
-                DatosPartida.PtsGanador = Player1.Dinero;
-                DatosPartida.PtsPerdedor = Player2.Dinero;
-            }
-            else
-            {
-                //lado que gano
-                if (Player2.LadoActual == Visualizacion.Lado.Der)
-                    DatosPartida.LadoGanadaor = DatosPartida.Lados.Der;
-                else
-                    DatosPartida.LadoGanadaor = DatosPartida.Lados.Izq;
-
-                //puntajes
-                DatosPartida.PtsGanador = Player2.Dinero;
-                DatosPartida.PtsPerdedor = Player1.Dinero;
-            }
-        }
+        MakePointsSnapshot();
         
 
         Player1.GetComponent<Frenado>().Frenar();
@@ -353,6 +338,13 @@ public class GameManager : MonoBehaviour {
             }
         }
             
+    }
+
+    void MakePointsSnapshot()
+    {
+        DatosPartida.player1Points = player1.Dinero;
+        if(player2)
+            DatosPartida.player2Points = player2.Dinero;
     }
 
 }
