@@ -3,7 +3,14 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Obstaculo
+  - Terreno
+  - Deposito
+  - Cinta
+  - Estante
+  - FinTaxi
+  - Slider
   layers:
   - Default
   - TransparentFX
