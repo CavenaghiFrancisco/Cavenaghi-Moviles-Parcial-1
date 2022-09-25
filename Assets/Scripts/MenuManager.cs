@@ -13,6 +13,11 @@ public class MenuManager : MonoBehaviour
     [SerializeField] DifficultyScriptableObject difficulty;
     [SerializeField] MultiplayerScriptableObject multiplayer;
 
+    private void Start()
+    {
+        Time.timeScale = 1;
+    }
+
     private IEnumerator ActivatePanel(CinemachineVirtualCamera camera)
     {
         float time = 0;
@@ -78,4 +83,14 @@ public class MenuManager : MonoBehaviour
         multiplayer.isMultiplayer = multi;
     }
 
+    public void PauseGame()
+    {
+        Time.timeScale = Time.timeScale == 0 ? 1 : 0;
+    }
+
+    public void PauseGame(GameObject panel)
+    {
+        Time.timeScale = Time.timeScale == 0 ? 1 : 0;
+        panel.SetActive(!panel.activeSelf);
+    }
 }
