@@ -16,6 +16,12 @@ public class MenuManager : MonoBehaviour
     private void Start()
     {
         Time.timeScale = 1;
+        GameManager.OnEndgame += ChangeToEndGame;
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.OnEndgame -= ChangeToEndGame;
     }
 
     private IEnumerator ActivatePanel(CinemachineVirtualCamera camera)
@@ -92,5 +98,17 @@ public class MenuManager : MonoBehaviour
     {
         Time.timeScale = Time.timeScale == 0 ? 1 : 0;
         panel.SetActive(!panel.activeSelf);
+    }
+
+    public void ChangeToEndGame()
+    {
+        if (multiplayer.isMultiplayer)
+        {
+            SceneManager.LoadScene("MultiEndGame");
+        }
+        else
+        {
+            SceneManager.LoadScene("SingleEndGame");
+        }
     }
 }

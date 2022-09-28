@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
-
+using System;
 using System.Collections;
 
 public class GameManager : MonoBehaviour {
@@ -14,7 +13,7 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private Player player1;
     [SerializeField] private Player player2;
 
-   
+    public static Action OnEndgame;
 
     bool ConteoRedresivo = true;
     public Rect ConteoPosEsc;
@@ -158,14 +157,7 @@ public class GameManager : MonoBehaviour {
 
                 TiempEspMuestraPts -= Time.deltaTime;
                 if (TiempEspMuestraPts <= 0)
-                    if (multiplayer.isMultiplayer)
-                    {
-                        SceneManager.LoadScene("MultiEndGame");
-                    }
-                    else
-                    {
-                        SceneManager.LoadScene("SingleEndGame");
-                    }
+                    OnEndgame();
 
                 break;
         }
